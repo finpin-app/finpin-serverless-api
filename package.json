@@ -1,0 +1,46 @@
+{
+  "name": "finpin-serverless-api",
+  "version": "1.0.0",
+  "description": "Open-source serverless API for expense parsing and device management, powered by Cloudflare Workers with OpenAI-compatible AI integration",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "vitest",
+    "type-check": "tsc --noEmit",
+    "setup": "chmod +x scripts/setup.sh && ./scripts/setup.sh"
+  },
+  "keywords": [
+    "finpin",
+    "cloudflare-workers",
+    "serverless",
+    "expense-tracking",
+    "openai",
+    "ai",
+    "api",
+    "typescript",
+    "hono"
+  ],
+  "author": "FinPin Team <contact@finpin.app>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/finpin-app/finpin-serverless-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/finpin-app/finpin-serverless-api/issues"
+  },
+  "homepage": "https://finpin.app",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240529.0",
+    "@types/node": "^20.12.12",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0",
+    "wrangler": "^3.57.1"
+  },
+  "dependencies": {
+    "hono": "^4.4.2",
+    "@hono/zod-validator": "^0.2.1",
+    "zod": "^3.23.8"
+  }
+}

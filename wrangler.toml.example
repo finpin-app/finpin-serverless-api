@@ -1,0 +1,88 @@
+name = "finpin-api"
+main = "src/index.ts"
+compatibility_date = "2024-05-30"
+compatibility_flags = ["nodejs_compat"]
+
+# Production environment configuration
+[env.production]
+name = "finpin-api-production"
+vars = { 
+  ENVIRONMENT = "production", 
+  API_VERSION = "v1", 
+  RATE_LIMIT_PER_MINUTE = "5", 
+  REQUEST_TIMEOUT_SECONDS = "30", 
+  SIGNATURE_VALIDITY_MINUTES = "5",
+  
+  # OpenAI Configuration (choose one)
+  OPENAI_MODEL = "gpt-3.5-turbo",
+  OPENAI_BASE_URL = "https://api.openai.com/v1",
+  
+  # ARK Configuration (alternative to OpenAI)
+  ARK_MODEL = "doubao-1-5-lite-32k-250115",
+  ARK_BASE_URL = "https://ark.cn-beijing.volces.com/api/v3"
+}
+
+# KV Namespaces for production (replace with your actual IDs)
+kv_namespaces = [
+  { binding = "CACHE", id = "your-cache-kv-namespace-id", preview_id = "your-cache-preview-id" },
+  { binding = "RATE_LIMIT", id = "your-rate-limit-kv-namespace-id", preview_id = "your-rate-limit-preview-id" }
+]
+
+# Staging environment configuration
+[env.staging]
+name = "finpin-api-staging"
+vars = { 
+  ENVIRONMENT = "staging", 
+  API_VERSION = "v1", 
+  RATE_LIMIT_PER_MINUTE = "10", 
+  REQUEST_TIMEOUT_SECONDS = "30", 
+  SIGNATURE_VALIDITY_MINUTES = "5",
+  OPENAI_MODEL = "gpt-3.5-turbo",
+  OPENAI_BASE_URL = "https://api.openai.com/v1"
+}
+
+# Development environment variables (default)
+[vars]
+ENVIRONMENT = "development"
+API_VERSION = "v1"
+RATE_LIMIT_PER_MINUTE = "10"
+REQUEST_TIMEOUT_SECONDS = "30"
+SIGNATURE_VALIDITY_MINUTES = "5"
+
+# Choose your AI provider by uncommenting the appropriate section:
+
+# OpenAI Configuration
+OPENAI_MODEL = "gpt-3.5-turbo"
+OPENAI_BASE_URL = "https://api.openai.com/v1"
+
+# ARK Configuration (ByteDance - alternative to OpenAI)
+# ARK_MODEL = "doubao-1-5-lite-32k-250115"
+# ARK_BASE_URL = "https://ark.cn-beijing.volces.com/api/v3"
+
+# Other OpenAI-compatible APIs
+# OPENAI_MODEL = "your-model-name"
+# OPENAI_BASE_URL = "https://your-api-provider.com/v1"
+
+# KV Namespaces for development (replace with your actual IDs)
+# Create these using: wrangler kv:namespace create "CACHE" and wrangler kv:namespace create "RATE_LIMIT"
+[[kv_namespaces]]
+binding = "CACHE"
+id = "your-cache-kv-namespace-id"
+preview_id = "your-cache-preview-id"
+
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "your-rate-limit-kv-namespace-id"
+preview_id = "your-rate-limit-preview-id"
+
+# Secrets (set using: wrangler secret put SECRET_NAME)
+# Required secrets:
+# - OPENAI_API_KEY (if using OpenAI)
+# - ARK_API_KEY (if using ARK)
+# - MASTER_KEY_SEED (random string for device key generation)
+# - JWT_SECRET (random string for JWT signing)
+
+# Custom domains (optional)
+# [env.production.routes]
+# pattern = "api.yourdomain.com/*"
+# custom_domain = true
