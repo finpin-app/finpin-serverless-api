@@ -22,7 +22,7 @@
     "hono"
   ],
   "author": "FinPin Team <contact@finpin.app>",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/finpin-app/finpin-serverless-api.git"
