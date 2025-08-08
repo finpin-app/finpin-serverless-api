@@ -69,7 +69,7 @@ EXTRACTION TARGETS:
 - payment_method: Payment method (Apple Pay, Google Pay, Alipay, WeChat Pay, Credit Card, Debit Card, etc.)
 - payment_card: Specific card/bank (Monzo, HSBC, Starling, Chase, Visa, Mastercard, etc.)
 - location: Geographic location (city, country, or address)
-- timestamp: ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ) or null
+- timestamp: ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ) or null, representing the actual transaction time from receipt
 - confidence: Accuracy score (0.0-1.0)
 - extensions: Additional metadata
 
@@ -103,9 +103,12 @@ PARSING RULES:
    - Countries: "英格兰" → "England", "Iceland"
    - Airports: "机场" indicates airport location
 
-7. TIMESTAMP: Parse date/time information
-   - Formats: "2023-09-20 01:47", "2022/12/16 14:09", "09:41"
-   - Convert to ISO 8601 or null if incomplete
+7. TIMESTAMP: Parse actual transaction date/time from receipt
+   - Look for explicit transaction time labels: "Transaction Time:", "Time:", "Date:", "交易时间:", "时间:", "日期:", etc.
+   - Prioritize dates with clear transaction context over general dates
+   - Formats: "2023-09-20 01:47", "2022/12/16 14:09", "09:41", "2023年09月20日 01:47"
+   - Convert to ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ)
+   - Set to null if no clear transaction date is found
 
 8. EXTENSIONS: Add contextual information
    - category: Food & Beverage, Transportation, Shopping, Accommodation, etc.
@@ -139,6 +142,23 @@ Costa Coffee Transaction:
     "category": "Food & Beverage",
     "tags": ["coffee", "food", "airport"],
     "description": "Costa Coffee purchase at Hounslow"
+  }
+}
+
+Chinese Receipt Transaction:
+{
+  "amount": "25.00",
+  "currency": "CNY",
+  "merchant": "星巴克",
+  "payment_method": "支付宝",
+  "payment_card": null,
+  "location": "北京",
+  "timestamp": "2023-09-20T14:30:00Z",
+  "confidence": 0.95,
+  "extensions": {
+    "category": "Food & Beverage",
+    "tags": ["coffee", "chinese"],
+    "description": "星巴克消费"
   }
 }
 
@@ -187,7 +207,8 @@ Hotel Transaction:
 3. Pay special attention to currency symbols and amount formatting
 4. Identify merchant names even if mixed with location/address info
 5. Handle multi-language text (English, Chinese, etc.)
-6. Return only the JSON response, no other text
+6. CRITICAL: For timestamp, look specifically for transaction time labels (Time:, Date:, 交易时间:, etc.) and prioritize these over general dates
+7. Return only the JSON response, no other text
 
 PARSE NOW:`;
 
