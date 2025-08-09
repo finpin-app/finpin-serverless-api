@@ -3,7 +3,6 @@ main = "src/index.ts"
 compatibility_date = "2024-05-30"
 compatibility_flags = ["nodejs_compat"]
 
-# Production environment configuration
 [env.production]
 name = "finpin-api-production"
 vars = { 
@@ -28,7 +27,6 @@ kv_namespaces = [
   { binding = "RATE_LIMIT", id = "your-rate-limit-kv-namespace-id", preview_id = "your-rate-limit-preview-id" }
 ]
 
-# Staging environment configuration
 [env.staging]
 name = "finpin-api-staging"
 vars = { 
@@ -41,7 +39,7 @@ vars = {
   OPENAI_BASE_URL = "https://api.openai.com/v1"
 }
 
-# Development environment variables (default)
+# Environment variables (use wrangler secret for sensitive data)
 [vars]
 ENVIRONMENT = "development"
 API_VERSION = "v1"

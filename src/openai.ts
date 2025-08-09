@@ -24,7 +24,8 @@ export class OpenAIService {
    * Parse expense text using OpenAI GPT
    */
   async parseExpenseText(request: ExpenseParseRequest): Promise<any> {
-    const systemPrompt = this.buildSystemPrompt();
+    const timezoneOffset = request.context?.timezone_offset ?? null;
+    const systemPrompt = this.buildSystemPrompt(timezoneOffset);
     const userPrompt = this.buildUserPrompt(request);
 
     const openaiRequest: OpenAIRequest = {
@@ -57,7 +58,7 @@ export class OpenAIService {
   /**
    * Build system prompt for expense parsing
    */
-  private buildSystemPrompt(): string {
+  private buildSystemPrompt(timezoneOffset: number | null): string {
     return `You are an expert financial transaction parser specializing in mobile payment receipts and bank transaction records. Extract structured information from payment text in any language with high accuracy.
 
 CRITICAL: Respond with valid JSON only. No explanations, comments, or additional text.
@@ -107,8 +108,7 @@ PARSING RULES:
    - Look for explicit transaction time labels: "Transaction Time:", "Time:", "Date:", "交易时间:", "时间:", "日期:", etc.
    - Prioritize dates with clear transaction context over general dates
    - Formats: "2023-09-20 01:47", "2022/12/16 14:09", "09:41", "2023年09月20日 01:47"
-   - Convert to ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ)
-   - Set to null if no clear transaction date is found
+   - For timestamps, first try to infer timezone from content (e.g., Chinese keywords like "支付宝", "微信" imply UTC+8). Convert to UTC by subtracting 8 hours if UTC+8. If unable to infer, parse as local time without adjustment. Return in ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ).
 
 8. EXTENSIONS: Add contextual information
    - category: Food & Beverage, Transportation, Shopping, Accommodation, etc.

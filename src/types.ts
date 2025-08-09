@@ -27,7 +27,7 @@ export interface Env {
   // ARK Configuration (alternative to OpenAI)
   ARK_MODEL?: string;
   ARK_BASE_URL?: string;
-
+  
   // KV Namespaces
   CACHE: KVNamespace;
   RATE_LIMIT: KVNamespace;
@@ -64,6 +64,7 @@ export interface ExpenseParseRequest {
       height?: number;
       format?: string;
     };
+    timezone_offset?: number;
   };
 }
 
