@@ -82,6 +82,17 @@ PARSING RULES:
 2. CURRENCY: Map symbols and codes to ISO standards
    - £ → GBP, $ → USD, ¥ → CNY/JPY, € → EUR, kr/ISK → ISK
    - Look for explicit codes: USD, GBP, EUR, CNY, JPY, ISK
+   - If no explicit currency is mentioned but the text contains Chinese payment-related keywords (e.g., "财付通", "零钱", "小程序", "淘宝", "支付宝", "余额宝"), infer CNY.
+   - For English/UK contexts without explicit currency, infer GBP.
+   - For US contexts, infer USD.
+   - When no explicit currency is detected, use comprehensive inference (in priority order):
+     - PRIORITY 1: User's location context (e.g., user in UK → GBP, user in China → CNY, user in Iceland → ISK)
+     - PRIORITY 2: Merchant/location information from text (e.g., "Iceland" → ISK, "Japan" → JPY, "China/中国" → CNY)
+     - PRIORITY 3: Text language context (e.g., Chinese characters → CNY, Icelandic text → ISK, Japanese text → JPY)
+     - PRIORITY 4: Payment method context (e.g., Alipay/支付宝 → CNY, WeChat Pay/微信支付 → CNY)
+     - PRIORITY 5: Merchant brand context (e.g., known Chinese brands → CNY, known UK brands → GBP)
+   - Apply inference even for ambiguous amounts without clear currency symbols
+   - Default to USD only if all inference methods fail
 
 3. MERCHANT: Extract primary business name
    - Prioritize recognizable brand names: "Costa Coffee", "Starbucks", "McDonald's"
@@ -104,11 +115,14 @@ PARSING RULES:
    - Countries: "英格兰" → "England", "Iceland"
    - Airports: "机场" indicates airport location
 
-7. TIMESTAMP: Parse actual transaction date/time from receipt
+7. TIMESTAMP: Parse actual transaction date/time from the receipt text
+   - PRIORITIZE time found in the receipt text over any user provided timestamp
    - Look for explicit transaction time labels: "Transaction Time:", "Time:", "Date:", "交易时间:", "时间:", "日期:", etc.
    - Prioritize dates with clear transaction context over general dates
    - Formats: "2023-09-20 01:47", "2022/12/16 14:09", "09:41", "2023年09月20日 01:47"
    - For timestamps, first try to infer timezone from content (e.g., Chinese keywords like "支付宝", "微信" imply UTC+8). Convert to UTC by subtracting 8 hours if UTC+8. If unable to infer, parse as local time without adjustment. Return in ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ).
+   - Use user provided timestamp ONLY as fallback if no time is found in text, applying the same timezone adjustment
+   - Set to null if no time information available at all
 
 8. EXTENSIONS: Add contextual information
    - category: Food & Beverage, Transportation, Shopping, Accommodation, etc.
@@ -205,10 +219,13 @@ Hotel Transaction:
 1. Carefully analyze the text for financial transaction information
 2. Extract all identifiable elements according to the system rules
 3. Pay special attention to currency symbols and amount formatting
-4. Identify merchant names even if mixed with location/address info
-5. Handle multi-language text (English, Chinese, etc.)
-6. CRITICAL: For timestamp, look specifically for transaction time labels (Time:, Date:, 交易时间:, etc.) and prioritize these over general dates
-7. Return only the JSON response, no other text
+4. CRITICAL: For currency inference when no explicit symbol is present, use ALL available context:
+   - User location, merchant location, text language, payment method, and merchant brand
+   - Do NOT default to USD without attempting comprehensive inference first
+5. Identify merchant names even if mixed with location/address info
+6. Handle multi-language text (English, Chinese, etc.)
+7. CRITICAL: For timestamp, look specifically for transaction time labels (Time:, Date:, 交易时间:, etc.) and prioritize these over general dates
+8. Return only the JSON response, no other text
 
 PARSE NOW:`;
 
